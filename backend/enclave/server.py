@@ -43,13 +43,13 @@ def main():
             # Base64 encode the attestation doc
             attestation_doc_b64 = base64.b64encode(attestation_doc).decode()
 
-            # Generate JSON request
-            secretstore_request = json.dumps({
+            # Generate JSON attestation response
+            attestation_response = json.dumps({
                 'attestation_doc_b64': attestation_doc_b64
             })
 
-            # Send the request to secretstore
-            client_socket.send(str.encode(secretstore_request))
+            # Send response to client
+            client_connection.send(str.encode(attestation_response))
 
         # Close the connection with client
         client_connection.close()
