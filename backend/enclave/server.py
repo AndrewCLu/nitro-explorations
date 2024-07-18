@@ -52,7 +52,7 @@ def main():
             client_connection.send(str.encode(attestation_response))
         
         elif request['action'] == 'send-encrypted-data':
-            encrypted_data = request['data']
+            encrypted_data = base64.b64decode(request['data'])
 
             # Decrypt the data using the public key
             data = nsm_util.decrypt(encrypted_data)
