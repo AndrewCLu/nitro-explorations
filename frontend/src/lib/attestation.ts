@@ -3,7 +3,7 @@ import forge from "node-forge";
 
 // This is the expected application PCR of the enclave image
 const EXPECTED_PCR2 =
-  "1c663c02c50a873177508deb6d28bb8c6180940b369037cc51613edd415369a469a8947ebdad59df173cbbdc362f6814";
+  "614412e15dc0b05374287bc0a4294b1beab7c03256860fd2dbb70d4a33105739946d84925664048d091e298213422202";
 
 // Decode an AWS Nitro attestation document, verify the PCR2 value and return the PEM encoded public key
 export const verifyAttestationDoc = async (

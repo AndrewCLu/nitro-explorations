@@ -76,12 +76,16 @@ def send_encrypted_data():
         # Get decrypted data from the response
         decrypted_data = response.get('decrypted_data')
 
+        print("Decrypted data: ", decrypted_data)
+
         # Close the connection 
         s.close()
 
         # Return the decrypted data
         return jsonify(decrypted_data=decrypted_data), 200
     except Exception as e:
+        print(e)
+
         # Return error response
         return jsonify(error=str(e)), 500
 
