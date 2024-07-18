@@ -50,6 +50,7 @@ def send_encrypted_data():
         data = request.json.get('data')
         if not data:
             return jsonify({}), 400
+        print("Encrypted data: ", data)
 
         # Create a vsock socket object
         s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
