@@ -69,11 +69,18 @@ def send_encrypted_data():
             'data': data
         })))
 
+        # Receive and decode response from the server
+        payload = s.recv(65536)
+        response = json.loads(payload.decode())
+
+        # Get decrypted data from the response
+        decrypted_data = response.get('decrypted_data')
+
         # Close the connection 
         s.close()
 
-        # Return success response
-        return jsonify({}), 200
+        # Return the decrypted data
+        return jsonify(decrypted_data=decrypted_data), 200
     except Exception as e:
         # Return error response
         return jsonify(error=str(e)), 500

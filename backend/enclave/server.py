@@ -60,6 +60,14 @@ def main():
             # Log the decrypted data to console
             print("New data decryption: ", data)
 
+            # Generate JSON response with decrypted data
+            response = json.dumps({
+                'decrypted_data': data
+            })
+
+            # Send response back to the client
+            client_connection.send(str.encode(response))
+
         # Close the connection with client
         client_connection.close()
 

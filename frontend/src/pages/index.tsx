@@ -39,7 +39,10 @@ export default function Home() {
     });
 
     if (response.ok) {
-      toast.success("Data sent successfully!");
+      const { decrypted_data } = await response.json();
+      toast.success(
+        "Data sent successfully, enclave decrypted: " + decrypted_data
+      );
     } else {
       toast.error("Failed to send data!");
     }
