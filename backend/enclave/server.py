@@ -50,6 +50,15 @@ def main():
 
             # Send response to client
             client_connection.send(str.encode(attestation_response))
+        
+        elif request['action'] == 'send-encrypted-data':
+            encrypted_data = request['data']
+
+            # Decrypt the data using the public key
+            data = nsm_util.decrypt(encrypted_data)
+
+            # Log the decrypted data to console
+            print("New data decryption: ", data)
 
         # Close the connection with client
         client_connection.close()

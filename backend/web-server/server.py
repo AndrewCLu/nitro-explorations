@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 import socket
@@ -42,6 +42,41 @@ def get_enclave_key():
 
     # Return the attestation document
     return jsonify(attestation_doc=attestation_doc_b64)
+
+@app.route('/send-encrypted-data', methods=['POST'])
+def send_encrypted_data():
+    try:
+        # Get encrypted data from request
+        data = request.json.get('data')
+        if not data:
+            return jsonify({}), 400
+
+        # Create a vsock socket object
+        s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
+        
+        # Fixed CID for the enclave
+        cid = 16
+
+        # The port should match the server running in enclave
+        port = 5000
+
+        # Connect to the server
+        s.connect((cid, port))
+
+        # Send command to the server running in enclave
+        s.send(str.encode(json.dumps({
+            'action': 'send-encrypted-data',
+            'data': data
+        })))
+
+        # Close the connection 
+        s.close()
+
+        # Return success response
+        return jsonify({}), 200
+    except Exception as e:
+        # Return error response
+        return jsonify(error=str(e)), 500
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)
