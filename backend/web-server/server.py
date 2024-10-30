@@ -87,5 +87,52 @@ def send_encrypted_data():
         # Return error response
         return jsonify(error=str(e)), 500
 
+@app.route('/hash-encrypted-input', methods=['POST'])
+def hash_encrypted_input():
+    try:
+        # Get encrypted data from request
+        encrypted_input = request.json.get('encrypted_input')
+        if not encrypted_input:
+            return jsonify({'error': 'No encrypted input provided'}), 400
+
+        # Create a vsock socket object
+        s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
+        
+        # Fixed CID for the enclave
+        cid = 16
+
+        # The port should match the server running in enclave
+        port = 5000
+
+        # Connect to the server
+        s.connect((cid, port))
+
+        # Send command to the server running in enclave
+        s.send(str.encode(json.dumps({
+            'action': 'hash-with-secret',
+            'encrypted_input': encrypted_input
+        })))
+
+        # Receive and decode response from the server
+        payload = s.recv(65536)
+        response = json.loads(payload.decode())
+
+        # Get hashes from the response
+        string_hash = response.get('string_hash')
+        secret_hash = response.get('secret_hash')
+
+        # Close the connection 
+        s.close()
+
+        # Return the hashes
+        return jsonify({
+            'string_hash': string_hash,
+            'secret_hash': secret_hash
+        }), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)

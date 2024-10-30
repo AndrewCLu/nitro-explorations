@@ -5,11 +5,33 @@ Based on https://github.com/richardfan1126/nitro-enclave-python-demo/blob/master
 import socket
 import json
 import base64
+import hashlib
+import os
 
 from NsmUtil import NSMUtil
 
+# Add these new functions at the top level
+def generate_secret(length=32):
+    """Generate a cryptographically secure random secret"""
+    return os.urandom(length)
+
+def hash_string(input_string: str, secret: bytes) -> str:
+    """Hash a string concatenated with the secret using SHA-256"""
+    combined = input_string.encode() + secret
+    return hashlib.sha256(combined).hexdigest()
+
+def hash_secret(secret: bytes) -> str:
+    """Hash the secret alone using SHA-256"""
+    return hashlib.sha256(secret).hexdigest()
+
+
 def main():
     print("Starting enclave server...")
+
+    # Generate secret when server starts
+    server_secret = generate_secret()
+    print("Server secret generated")
+
 
     # Initialise NSMUtil
     nsm_util = NSMUtil()
@@ -51,18 +73,37 @@ def main():
             # Send response to client
             client_connection.send(str.encode(attestation_response))
         
-        elif request['action'] == 'send-encrypted-data':
-            encrypted_data = base64.b64decode(request['data'])
+        # elif request['action'] == 'send-encrypted-data':
+        #     encrypted_data = base64.b64decode(request['data'])
+
+        #     # Decrypt the data using the public key
+        #     data = nsm_util.decrypt(encrypted_data)
+
+        #     # Log the decrypted data to console
+        #     print("New data decryption: ", data)
+
+        #     # Generate JSON response with decrypted data
+        #     response = json.dumps({
+        #         'decrypted_data': data
+        #     })
+
+        #     # Send response back to the client
+        #     client_connection.send(str.encode(response))
+
+        elif request['action'] == 'hash-with-secret':
+            encrypted_data = base64.b64decode(request['encrypted_input'])
 
             # Decrypt the data using the public key
             data = nsm_util.decrypt(encrypted_data)
+            
+            # Hash the input string with the secret
+            string_hash = hash_string(data, server_secret)
+            secret_hash = hash_secret(server_secret)
 
-            # Log the decrypted data to console
-            print("New data decryption: ", data)
-
-            # Generate JSON response with decrypted data
+            # Generate JSON response
             response = json.dumps({
-                'decrypted_data': data
+                'string_hash': string_hash,
+                'secret_hash': secret_hash
             })
 
             # Send response back to the client
